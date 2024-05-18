@@ -123,6 +123,7 @@ int main(void)
   MX_SPI2_Init();
   MX_TIM1_Init();
   MX_USART6_UART_Init();
+  MX_UART5_Init();
   /* USER CODE BEGIN 2 */
   uart_init();
   uart2_init();

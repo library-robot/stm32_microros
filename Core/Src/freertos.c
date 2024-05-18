@@ -67,12 +67,15 @@ std_msgs__msg__String pub_str_pos;
 /* USER CODE BEGIN Variables */
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
+extern UART_HandleTypeDef huart5;
 extern UART_HandleTypeDef huart6;
 extern queue8_t uart_queue;
+extern queue8_t uart5_queue;
 
 extern TIM_HandleTypeDef htim1;
 #define transmitSignal 0x0001
 #define transmitSignal2 0x0002
+#define transmitSignal5 0x0005
 
 uint8_t canTxData[8];
 uint32_t	TxMailBox;
@@ -194,6 +197,7 @@ void StartDefaultTask(void const * argument)
   for(;;)
   {
 	read_rfid_number();
+	read_rfid_number5();
 	read_command();
     osDelay(1);
   }
@@ -216,6 +220,7 @@ void StartRfidExecuteTask(void const * argument)
 	  for(;;)
 	  {
 		HAL_UART_Transmit(&huart1, read_tag_single_time, sizeof(read_tag_single_time), HAL_MAX_DELAY);
+		HAL_UART_Transmit(&huart5, read_tag_single_time, sizeof(read_tag_single_time), HAL_MAX_DELAY);
 		//vTaskResume(defaultTaskHandle);
 	    osDelay(300);
 	  }
@@ -234,13 +239,18 @@ void StartTagNumTransmitTask(void const * argument)
   /* USER CODE BEGIN StartTagNumTransmitTask */
   /* Infinite loop */
   osEvent event;
+  osEvent event2;
   for(;;)
   {
 	event = osSignalWait(transmitSignal, 100);
 	if(event.value.signals == transmitSignal){
 		transmitData();
 		}
-  osDelay(1);
+	event2 = osSignalWait(transmitSignal5, 100);
+	if(event.value.signals == transmitSignal5){
+		transmitData5();
+	}
+	osDelay(1);
   }
 
 
@@ -350,9 +360,9 @@ void subscription_str_callback(const void * msgin)
   }
   //sprintf(pub_str_msg.data.data, "F446RE heard: %s", str);
   pub_str_msg.data.size = strlen(pub_str_msg.data.data);
-  rcl_publish(&publisher_string_scan, &pub_str_msg, NULL);
+  //rcl_publish(&publisher_string_scan, &pub_str_msg, NULL);
   Publisher_state();
-  debug_led();
+  //debug_led();
 }
 
 void debug_led()

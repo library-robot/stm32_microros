@@ -13,8 +13,10 @@
 #define READ_BOOK_MAX_SIZE 100
 #define transmitSignal 0x0001
 #define transmitSignal2 0x0002
+#define transmitSignal5 0x0005
 #include "cmsis_os.h"
 
+extern UART_HandleTypeDef huart5;
 extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart1;
 extern osThreadId tagNumTransmitTHandle;
@@ -24,12 +26,17 @@ extern osThreadId transmitTask2Handle;
 extern osThreadId rfidExecuteTaskHandle;
 
 queue8_t uart_queue;
+queue8_t uart5_queue;
 queue8_t uart2_queue;
 
 void uart_init(){
 	HAL_UART_Receive_DMA(&huart1, uart_queue.buf, QUEUE_BUF_MAX) ;
 	uart_queue.q_in_index = 0;
 	uart_queue.q_out_index = 0;
+
+	HAL_UART_Receive_DMA(&huart5, uart5_queue.buf, QUEUE_BUF_MAX);
+	uart5_queue.q_in_index = 0;
+	uart5_queue.q_out_index = 0;
 }
 
 uint32_t uart_available(void){
@@ -86,6 +93,63 @@ void transmitData(){
 		}
 	memset(rfid_number,0,sizeof(rfid_number));
 	book_num =0;
+
+}
+
+uint32_t uart5_available(void){
+	uint32_t ret = 0;
+	uart5_queue.q_in_index = (QUEUE_BUF_MAX - huart5.hdmarx->Instance->NDTR) % QUEUE_BUF_MAX; //원형 큐
+//	hdmarx->Instance->CNDTR
+	ret = (QUEUE_BUF_MAX + uart5_queue.q_in_index - uart5_queue.q_out_index) % QUEUE_BUF_MAX; // 버퍼 데이터 개수
+
+	return ret;
+}
+
+uint8_t uart5_q8_read(void){
+	uint8_t ret =0;
+	if(uart5_queue.q_out_index != uart5_queue.q_in_index){
+		ret = uart5_queue.buf[uart5_queue.q_out_index];
+		uart5_queue.q_out_index = (uart5_queue.q_out_index +1) % QUEUE_BUF_MAX;
+	}
+
+	return ret;
+}
+
+uint8_t rfid_number2[READ_BOOK_MAX_SIZE][12] = {0,}; //파싱한 rfid 번호 저장
+uint8_t recive_data2[24] = {0,}; //RFID 태그 한개에서 receive 한 data 저장
+uint8_t book_num2 = 0;  //책 순서
+uint8_t book_byte_num2 = 0; //책 태그의 바이트 순서
+void read_rfid_number5(){
+	uint8_t i;
+	if(uart5_available()){ // 데이터 있으면
+		uint8_t read_byte =  uart5_q8_read(); // 버퍼에서 1byte 읽고
+		recive_data2[book_byte_num2++] = read_byte;
+		if(read_byte == 0x7E) { // 마지막 데이터이면
+			if(recive_data2[1] != 0x01){ //인식이 된 경우 8~19 12byte rfid number
+				for( i=8; i<=19; i ++)
+					rfid_number2[book_num2][i-8] = recive_data2[i];
+				book_num2 ++;
+			}
+			book_byte_num2 = 0;
+		}
+		if(!uart5_available()){ //다 읽었으면
+			osSignalSet(tagNumTransmitTHandle, transmitSignal5); //전송 이벤트 생성
+			//vTaskSuspend(defaultTaskHandle);
+			}
+		}
+}
+
+void transmitData5(){
+	int i=0;
+	while(rfid_number2[i][0] != 0){
+		//computer
+		HAL_UART_Transmit(&huart2, rfid_number2[i], sizeof(rfid_number2[i]), 500);
+		//esp32
+		HAL_UART_Transmit(&huart3, rfid_number2[i], sizeof(rfid_number2[i]), 500);
+		i++;
+		}
+	memset(rfid_number2,0,sizeof(rfid_number2));
+	book_num2 =0;
 
 }
 

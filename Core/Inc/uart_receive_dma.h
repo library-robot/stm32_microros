@@ -22,6 +22,11 @@ void uart_init(void);
 void read_rfid_number(void);
 void transmitData();
 
+uint32_t uart5_available(void);
+uint8_t uart5_q8_read(void);
+void read_rfid_number5(void);
+void transmitData5();
+
 uint32_t uart2_available(void);
 uint8_t uart2_q8_read(void);
 void uart2_init(void);

@@ -29,5 +29,4 @@ void Publisher_pos(double x, double y){
 	msg.data.data = str;
 	msg.data.size = strlen(str);
 	rcl_publish(&publisher_string_pos, &msg, NULL);
-	HAL_UART_Transmit(&huart2, str, sizeof(str), 100);
 }
