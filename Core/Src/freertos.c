@@ -361,7 +361,7 @@ void subscription_str_callback(const void * msgin)
   //sprintf(pub_str_msg.data.data, "F446RE heard: %s", str);
   pub_str_msg.data.size = strlen(pub_str_msg.data.data);
   //rcl_publish(&publisher_string_scan, &pub_str_msg, NULL);
-  Publisher_state();
+  //Publisher_state();
   //debug_led();
 }
 
