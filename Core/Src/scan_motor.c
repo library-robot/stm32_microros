@@ -24,7 +24,7 @@ extern osThreadId rfidExecuteTaskHandle;
 
 void scan_motor_up(){
 	if(limit_switch_up){
-		TIM1->CCR1 = 0;
+		TIM2->CCR2 = 0;
 		motor_status = 1;
 		limit_switch_up = 0;
 		Publisher_state();
@@ -32,13 +32,13 @@ void scan_motor_up(){
 		vTaskSuspend(motorTaskHandle);
 	}else{
 		change_motor_direction(1);
-		TIM1->CCR1 = 400;
+		TIM2->CCR2 = 400;
 	}
 }
 
 void scan_motor_down(){
 	if(limit_switch_down){
-		TIM1->CCR1 = 0;
+		TIM2->CCR2 = 0;
 		motor_status = 0;
 		limit_switch_down = 0;
 		Publisher_state();
@@ -46,7 +46,7 @@ void scan_motor_down(){
 		vTaskSuspend(motorTaskHandle);
 	}else{
 		change_motor_direction(0);
-		TIM1->CCR1 = 400;
+		TIM2->CCR2 = 400;
 	}
 }
 

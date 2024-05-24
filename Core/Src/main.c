@@ -121,14 +121,14 @@ int main(void)
   MX_USART1_UART_Init();
   MX_USART3_UART_Init();
   MX_SPI2_Init();
-  MX_TIM1_Init();
   MX_USART6_UART_Init();
   MX_UART5_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   uart_init();
   uart2_init();
   MFRC522_Init();
-  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
   HAL_GPIO_WritePin(Direction0_GPIO_Port, Direction0_Pin, GPIO_PIN_SET);
   HAL_GPIO_WritePin(Direction1_GPIO_Port, Direction1_Pin, GPIO_PIN_RESET);
 //  HAL_SPI_Receive_IT(&hspi2,rc522_rx_buf,sizeof(rc522_rx_buf));

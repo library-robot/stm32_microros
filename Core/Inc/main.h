@@ -79,8 +79,6 @@ void Error_Handler(void);
 #define Micro_ROS_TX_GPIO_Port GPIOC
 #define Micro_ROS_RX_Pin GPIO_PIN_7
 #define Micro_ROS_RX_GPIO_Port GPIOC
-#define Motor_pwm_Pin GPIO_PIN_8
-#define Motor_pwm_GPIO_Port GPIOA
 #define UHF01_TX_Pin GPIO_PIN_9
 #define UHF01_TX_GPIO_Port GPIOA
 #define UHF01_RX_Pin GPIO_PIN_10
