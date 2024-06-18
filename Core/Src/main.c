@@ -53,6 +53,8 @@
 /* USER CODE BEGIN PV */
 extern int limit_switch_up;
 extern int limit_switch_down;
+extern osThreadId motorTaskHandle;
+extern osThreadId rfidExecuteTaskHandle;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -76,11 +78,17 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		if(HAL_GetTick() - before_tick1 >= 300){
 			before_tick1 = HAL_GetTick();
 			limit_switch_up = 1;
+			limit_switch_down = 0;
+			vTaskSuspend(rfidExecuteTaskHandle);
+			vTaskSuspend(motorTaskHandle);
 		}
 	}else if(GPIO_Pin == Limit_switch_down_Pin){
 		if(HAL_GetTick() - before_tick2 >= 300){
 			before_tick2 = HAL_GetTick();
 			limit_switch_down = 1;
+			limit_switch_up = 0;
+			vTaskSuspend(rfidExecuteTaskHandle);
+			vTaskSuspend(motorTaskHandle);
 		}
 	}
 }
@@ -128,7 +136,7 @@ int main(void)
   uart_init();
   uart2_init();
   MFRC522_Init();
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
   HAL_GPIO_WritePin(Direction0_GPIO_Port, Direction0_Pin, GPIO_PIN_SET);
   HAL_GPIO_WritePin(Direction1_GPIO_Port, Direction1_Pin, GPIO_PIN_RESET);
 //  HAL_SPI_Receive_IT(&hspi2,rc522_rx_buf,sizeof(rc522_rx_buf));
