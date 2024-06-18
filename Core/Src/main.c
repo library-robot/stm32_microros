@@ -77,6 +77,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	if(GPIO_Pin == Limit_switch_up_Pin){
 		if(HAL_GetTick() - before_tick1 >= 300){
 			before_tick1 = HAL_GetTick();
+			TIM2->CCR4 = 0;
 			limit_switch_up = 1;
 			limit_switch_down = 0;
 			vTaskSuspend(rfidExecuteTaskHandle);
@@ -85,6 +86,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	}else if(GPIO_Pin == Limit_switch_down_Pin){
 		if(HAL_GetTick() - before_tick2 >= 300){
 			before_tick2 = HAL_GetTick();
+			TIM2->CCR4 = 0;
 			limit_switch_down = 1;
 			limit_switch_up = 0;
 			vTaskSuspend(rfidExecuteTaskHandle);
